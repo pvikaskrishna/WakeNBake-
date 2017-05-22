@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flow xmlns="http://www.springframework.org/schema/webflow"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://www.springframework.org/schema/webflow  http://www.springframework.org/schema/webflow/spring-webflow-2.4.xsd">
+
+	<!-- Executed when webFlow is triggered -->
+		<on-start>
+		<evaluate expression="flowHandler.initFlow()" result="flowScope.order" />
+	</on-start>
+
+	<view-state id="flowExecutor" view="shippingAddress" model="shippingAddress">
+		<transition on="submitShippingAddress" to="shippingDetails" />
+	</view-state>
+
+	<action-state id="shippingDetails">
+		<evaluate
+			expression="flowHandler.addShippingAddress(flowScope.order,shippingAddress)"></evaluate>
+		<transition on="success" to="viewBillingDetails" />
+		<transition on="error" to="err"/>
+	</action-state>
+
+	<view-state id="viewBillingDetails" view="billingAddress"
+		model="billingAddress">
+		<transition on="submitBillingAddress" to="billingDetails" />
+		<transition on="error" to="err"/>
+	</view-state>
+
+	<action-state id="billingDetails">
+		<evaluate
+			expression="flowHandler.addBillingAddress(flowScope.order,billingAddress)"></evaluate>
+			
+		<transition on="success" to="orderDeliver" >
+		</transition>
+		
+	</action-state>
+	
+	<view-state id="orderDeliver" view="orderConfirmed" model="orderConfirmed">
+		<transition on="finalHome" to="toHome" />
+	</view-state>
+ 
+ <view-state id="toCartView" view="index" model="index"> 
+	</view-state>
+	<end-state id="toHome" view="externalRedirect:contextRelative:/index" />
+
+	<global-transitions>
+		<transition on="cancel" to="toCartView" />
+	</global-transitions>
+
+</flow>	
